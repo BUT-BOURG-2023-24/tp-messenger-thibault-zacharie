@@ -26,14 +26,14 @@ class JoiRequestValidator
 			validatorSchema: joi.object({
 				username: joi.string().alphanum().min(4).max(12).required(),
 				password: joiPassword
-                        .string()
-                        .minOfSpecialCharacters(1)
-                        .minOfLowercase(1)
-                        .minOfUppercase(1)
-                        .minOfNumeric(1)
-                        .noWhiteSpaces()
-                        .onlyLatinCharacters()
-                        .required(),
+                    .string()
+                    .minOfSpecialCharacters(1)
+                    .minOfLowercase(1)
+                    .minOfUppercase(1)
+                    .minOfNumeric(1)
+                  	.noWhiteSpaces()
+                    .onlyLatinCharacters()
+                    .required(),
 			})
 		},
 		{
