@@ -9,6 +9,10 @@ const app = express();
 function makeApp(database: Database) 
 {
 	app.locals.database = database;
+	database.connect();
+
+	const userRoutes = require('./routes/users')
+	app.use('/users', userRoutes);
 
 	const server = http.createServer(app);
 	app.use(express.json());

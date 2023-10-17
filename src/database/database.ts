@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import config from "../config";
 
 class Database 
@@ -11,7 +12,9 @@ class Database
 	
 	async connect()
 	{
-		// config.DB_ADDRESS contient l'adresse de la BDD
+		mongoose.connect(config.DB_ADDRESS)
+			.then(() => console.log("DB Connected !") )
+			.catch((error) => console.log("Error :" + error))
 	}
 }
 
