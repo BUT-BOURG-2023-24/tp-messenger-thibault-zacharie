@@ -27,10 +27,6 @@ async function getUserByName(req: Request, res: Response) {
   try {
     const { username } = req.params;
 
-    if (!req.body || !username) {
-      return res.status(400).json({ message: "Invalid request body" });
-    }
-
     const user = await User.findOne({username: username}).catch(() => res.status(500).send("User don't exist"));
 
     res.status(200).send(user);
@@ -43,12 +39,6 @@ async function getUserByName(req: Request, res: Response) {
 async function getUserById(req: Request, res: Response) {
   try {
     const { id } = req.params;
-
-    console.log(id);
-
-    if (!req.body || !id) {
-      return res.status(400).json({ message: "Invalid request body" });
-    }
 
     const user = await User.findOne({_id: id}).catch(() => res.status(500).send("User don't exist"));
 
@@ -84,9 +74,27 @@ async function login(req: Request, res: Response) {
   }
 };
 
+async function getUsersByIds(req: Request, res: Response) {
+  try {
+    const { ids } = req.body;
+
+    if (!req.body || !ids) {
+      return res.status(400).json({ message: "Invalid request body" });
+    }
+
+    const users = await User.find({ _id: { $in: ids } }).catch((error: Error) => res.status(500).json({error: error}));
+
+    res.status(200).send(users);
+  }
+  catch(error) {
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 module.exports = {
   createUser,
   getUserByName,
   getUserById,
-  login
+  login,
+  getUsersByIds
 }
