@@ -11,11 +11,11 @@ function makeApp(database: Database)
 	app.locals.database = database;
 	database.connect();
 
-	const userRoutes = require('./routes/users')
-	app.use('/users', userRoutes);
-
 	const server = http.createServer(app);
 	app.use(express.json());
+
+	const userRoutes = require('./routes/users')
+	app.use('/users', userRoutes);
 
 	const io = new Server(server, { cors: { origin: "*" } });
 	let socketController = new SocketController(io, database);

@@ -5,7 +5,7 @@ dotenv.config();
 export default {
 	DB_ADDRESS: process.env.DB_ADDRESS ?? "",
 	DB_ADDRESS_TEST: process.env.DB_ADDRESS_TEST ?? "",
-	PORT: process.env.PORT ?? 5000,
+	PORT: process.env.PORT,
 };
 
 /**
