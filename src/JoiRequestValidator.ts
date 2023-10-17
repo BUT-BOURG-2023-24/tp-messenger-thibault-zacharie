@@ -17,39 +17,38 @@ class JoiRequestValidator
 {
 	validators: JoiRouteValidator[] = 
 	[
-		// EXEMPLE
-		// {
-		// 	route: "/conversations/:id",
-		// 	method: "POST",
-		// 	validatorSchema: bodyFormat,
-		// }
+		{
+			route: '/users/create',
+			method: 'POST',
+			validatorSchema: joi.object({
+				username: joi.string().alphanum().min(5).required(),
+				password: joi.string().min(8).required()
+			})
+		},
+		{
+			route: '/users/login',
+			method: 'POST',
+			validatorSchema: joi.object({
+				username: joi.string().required(),
+				password: joi.string().required()
+			})
+		}
 	];
 
 	validate(request: Request): JoiRequestValidatorResponse 
 	{
-		// request.baseUrl contient l'URL de base, avant application des middlewares.
-		// request.route.path contient l'URL que vous déclarez dans votre middleware de routage.
-		console.log(request.baseUrl);
-		console.log(request.route.path);
+		const validator = this.validators.find((validator) => validator.route === request.baseUrl + request.route.path);
 
-		/* 
-			ETAPE 1:
+		if(!validator) {
+			return {};
+		}
 
-			Trouver dans la liste de validators, le validator qui correspond à la route de la requête.
-		*/
+		const { error } = validator.validatorSchema.validate(request.body);
 
-		/* 
-			ETAPE 2:
+		if(error) {
+			return { error: error.message };
+		};
 
-			Si le validator n'existe pas
-				=> retourner un objet vide.
-			Si le validator existe 
-				=> valider le body de la requête.
-				=> Si le body est valide
-					=> retourner un objet vide.
-				=> Si le body est invalide
-					=> retourner un objet avec une clé error contenant les details de l'erreur.
-		*/
 		return {};
 	}
 }
