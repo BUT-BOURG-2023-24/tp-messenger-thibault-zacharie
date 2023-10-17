@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import config from "../config";
 import mongoose from "mongoose";
 
@@ -13,10 +14,9 @@ class Database
 	async connect()
 	{
 		mongoose.connect(config.DB_ADDRESS)
-			.then(()=>{
-				console.log("DB Connect !")
-			}).catch((reportError)=>{
-			console.log("Error while connecting", reportError)
+			.then(() => console.log("DB Connected !") )
+			.catch((reportError) => console.log("Error while connecting :" + reportError))
+
 		})
 	}
 }

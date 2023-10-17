@@ -1,39 +1,92 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
+const User = require("../Models/UserModel");
+const pictures = require("../../../pictures");
 const bcrypt = require('bcrypt');
-const User = require('../Models/UserModel');
-const jwt = require('jsonwebtoken');
-const pictures = require('../../../pictures')
 
 async function createUser(req: Request, res: Response) {
-    try {
-        let hash = await bcrypt.hash(req.body.password, 5)
-        const username = req.body.username
-        let newUser = await new User({username: username, password: hash, profilePic: pictures.pickRandom()})
-        newUser = await newUser.save()
-        res.status(200).send(newUser);
-    } catch (error) {
-        res.status(500).send(`An error occurred while creating the user: ${error}`)
+  try {
+    const { username, password } = req.body;
+
+    if (!req.body || !username || !password) {
+      return res.status(400).json({ message: "Invalid request body" });
     }
+
+    let hash = await bcrypt.hash(password, 5);
+    const newUser = new User({username: username, password: hash, profilePic: pictures.pickRandom()});
+    newUser.save();
+
+    res.status(200).send(newUser);
+  }
+  catch(error) {
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+async function getUserByName(req: Request, res: Response) {
+  try {
+    const { username } = req.params;
+
+    if (!req.body || !username) {
+      return res.status(400).json({ message: "Invalid request body" });
+    }
+
+    const user = await User.findOne({username: username}).catch(() => res.status(500).send("User don't exist"));
+
+    res.status(200).send(user);
+  }
+  catch(error) {
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+async function getUserById(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    console.log(id);
+
+    if (!req.body || !id) {
+      return res.status(400).json({ message: "Invalid request body" });
+    }
+
+    const user = await User.findOne({_id: id}).catch(() => res.status(500).send("User don't exist"));
+
+    res.status(200).send(user);
+  }
+  catch(error) {
+    res.status(500).send("Internal Server Error");
+  }
 }
 
 async function login(req: Request, res: Response) {
-    try {
-        const user = await User.findOne({username: req.body.username});
-        if (!user || !user.username)
-            return res.status(404).json("User not found.");
+  try {
+    const { username, password } = req.body;
 
-        let pwdCorrect = await bcrypt.compare(req.body.password, user.password);
-
-        if (!pwdCorrect)
-            return res.status(400).json("Incorrect password.");
-
-        const token = jwt.sign({userId: user._id}, process.env.SECRET_KEY, {expiresIn: "24h"});
-        res.status(200).json({userId: user._id, token: token});
-    } catch (error) {
-        res.status(500).send(`An error occurred while sign in: ${error}`)
+    if (!req.body || !username || !password) {
+      return res.status(400).json({ message: "Invalid request body" });
     }
 
-}
+    const user = await User.findOne({username: username}).catch(() => res.status(500).send("Internal error"));
+    if(!user) {
+      res.status(400).send("User not found")
+    }
 
-module.exports = {signup: createUser, login: login};
+    let pwdCorrect = await bcrypt.compare(password, user.password)
+    if(!pwdCorrect) {
+      return res.status(400).send("Incorrect password");
+    }
+
+    res.status(200).send(user);
+  }
+  catch(error) {
+    res.status(500).send("Error : " + error)
+  }
+};
+
+module.exports = {
+  createUser,
+  getUserByName,
+  getUserById,
+  login
+}

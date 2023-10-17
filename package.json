@@ -23,7 +23,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.2",
     "serve": "^14.2.1",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "typescript": "^5.2.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
