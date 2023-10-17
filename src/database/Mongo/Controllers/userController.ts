@@ -3,13 +3,19 @@ import { Request, Response } from "express";
 const User = require("../Models/UserModel");
 const pictures = require("../../../pictures");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 async function createUser(req: Request, res: Response) {
   try {
     const { username, password } = req.body;
 
     if (!req.body || !username || !password) {
-      return res.status(400).json({ message: "Invalid request body" });
+      return res.status(400).send("Invalid request body");
+    }
+
+    const user = await User.findOne({username: username});
+    if(user) {
+      return res.status(400).send("User already exist");
     }
 
     let hash = await bcrypt.hash(password, 5);
@@ -77,7 +83,9 @@ async function login(req: Request, res: Response) {
       return res.status(400).send("Incorrect password");
     }
 
-    res.status(200).send(user);
+    const token = jwt.sign({userId: user._id}, 'jXp0ZVTyKIMdvzgOnb45Ig', {expiresIn: "1h"});
+
+    res.status(200).json({userId: user._id, token: token});
   }
   catch(error) {
     res.status(500).send("Error : " + error)
