@@ -9,7 +9,7 @@ export interface IMessage extends Document {
 	replyTo: MongooseID | null,
 	edited: boolean,
 	deleted: boolean,
-	reactions: Map<MongooseID, string>,
+	reactions: Map<MongooseID, string> | null,
 }
 
 const MessageSchema: Schema<IMessage> = new Schema<IMessage>({
@@ -46,7 +46,8 @@ const MessageSchema: Schema<IMessage> = new Schema<IMessage>({
   },
   reactions: {
     type: Map,
-    of: String
+    of: String,
+    default: null
   }
 });
 
