@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import config from "../config";
-import mongoose from "mongoose";
 
 class Database 
 {
@@ -16,8 +15,6 @@ class Database
 		mongoose.connect(config.DB_ADDRESS)
 			.then(() => console.log("DB Connected !") )
 			.catch((reportError) => console.log("Error while connecting :" + reportError))
-
-		})
 	}
 }
 
