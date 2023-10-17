@@ -2,11 +2,24 @@ import mongoose, { Schema, Document } from "mongoose";
 import { MongooseID } from "../../../types";
 
 export interface IUser extends Document {
-	//A COMPLETER
+	username: string,
+	password: string,
+	profilePic: string
 }
 
 const userSchema: Schema<IUser> = new Schema<IUser>({
-	//A COMPLETER
+	username: {
+		type: String,
+		required: true
+	},
+	password: {
+		type: String,
+		required: true
+	},
+	profilePic: {
+		type: String,
+		required: true
+	}
 });
 
 const UserModel = mongoose.model<IUser>("User", userSchema);
