@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { JoiRequestValidatorInstance } from "../../../JoiRequestValidator";
-import joiValidator from "../../../middleware/joiValidator";
 
 const User = require("../Models/UserModel");
 const pictures = require("../../../pictures");

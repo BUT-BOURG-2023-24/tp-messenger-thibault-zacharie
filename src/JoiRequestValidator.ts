@@ -1,4 +1,7 @@
 import * as joi from "joi";
+const { joiPasswordExtendCore } = require('joi-password');
+const joiPassword = joi.extend(joiPasswordExtendCore);
+
 import { Request } from "express";
 
 interface JoiRequestValidatorResponse
@@ -22,7 +25,15 @@ class JoiRequestValidator
 			method: 'POST',
 			validatorSchema: joi.object({
 				username: joi.string().alphanum().min(4).max(12).required(),
-				password: joi.string().min(8).required()
+				password: joiPassword
+                        .string()
+                        .minOfSpecialCharacters(1)
+                        .minOfLowercase(1)
+                        .minOfUppercase(1)
+                        .minOfNumeric(1)
+                        .noWhiteSpaces()
+                        .onlyLatinCharacters()
+                        .required(),
 			})
 		},
 		{
