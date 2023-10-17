@@ -21,7 +21,7 @@ class JoiRequestValidator
 			route: '/users/create',
 			method: 'POST',
 			validatorSchema: joi.object({
-				username: joi.string().alphanum().min(5).required(),
+				username: joi.string().alphanum().min(4).max(12).required(),
 				password: joi.string().min(8).required()
 			})
 		},
