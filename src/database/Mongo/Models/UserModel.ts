@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { MongooseID } from "../../../types";
 
 export interface IUser extends Document {
 	username: string,
@@ -24,4 +23,4 @@ const userSchema: Schema<IUser> = new Schema<IUser>({
 
 const UserModel = mongoose.model<IUser>("User", userSchema);
 
-export default UserModel;
+module.exports = UserModel;
