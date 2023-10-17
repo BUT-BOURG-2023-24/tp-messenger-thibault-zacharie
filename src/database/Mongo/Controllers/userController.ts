@@ -4,10 +4,16 @@ import { JoiRequestValidatorInstance } from "../../../JoiRequestValidator";
 const User = require("../Models/UserModel");
 const pictures = require("../../../pictures");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 async function createUser(req: Request, res: Response) {
   try {
     const { username, password } = req.body;
+    
+    const user = await User.findOne({username: username});
+    if(user) {
+      return res.status(400).send("User already exist");
+
     const { error } = JoiRequestValidatorInstance.validate(req);
     
     if(error) {
@@ -68,8 +74,10 @@ async function login(req: Request, res: Response) {
     if(!pwdCorrect) {
       return res.status(400).send("Incorrect password");
     }
+    
+    const token = jwt.sign({userId: user._id}, 'jXp0ZVTyKIMdvzgOnb45Ig', {expiresIn: "1h"});
 
-    return res.status(200).send(user);
+    res.status(200).json({userId: user._id, token: token});
   }
   catch(error) {
     return res.status(500).send("Error : " + error)
