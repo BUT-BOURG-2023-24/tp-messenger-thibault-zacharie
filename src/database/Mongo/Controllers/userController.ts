@@ -90,14 +90,25 @@ async function getUsersByIds (req: Request, res: Response): Promise<Response> {
 
     return res.status(200).send(users)
   } catch (error) {
-    return res.status(500).send('Internal Server Error')
+    return res.status(500).json({ 'Interval Server Error': error })
   }
 };
+
+async function getUsers (req: Request, res: Response): Promise<Response> {
+  try {
+    const users = await User.find()
+
+    return res.status(200).send(users)
+  } catch (error) {
+    return res.status(500).json({ 'Interval Server Error': error })
+  }
+}
 
 module.exports = {
   createUser,
   getUserByName,
   getUserById,
   login,
-  getUsersByIds
+  getUsersByIds,
+  getUsers
 }

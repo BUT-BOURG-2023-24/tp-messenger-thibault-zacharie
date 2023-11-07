@@ -85,8 +85,7 @@ async function reactToMessage (req: Request, res: Response): Promise<Response> {
       return res.status(400).send('Already reacted with this reaction')
     }
 
-    const updatedMessage = await Message.findById(id)
-    return res.status(200).json(updatedMessage)
+    return res.status(200).json(message)
   } catch (error) {
     return res.status(500).json({ 'Internal Server Error': error })
   }
