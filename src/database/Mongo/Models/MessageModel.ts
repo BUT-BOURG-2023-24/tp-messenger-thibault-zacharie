@@ -1,15 +1,15 @@
-import mongoose, { Schema, Document } from "mongoose";
-import { MongooseID } from "../../../types";
+import mongoose, { Schema, type Document } from 'mongoose'
+import { type MongooseID } from '../../../types'
 
 export interface IMessage extends Document {
-	conversationId: MongooseID,
-	from: MongooseID,
-	content: string,
-	postedAt: Date,
-	replyTo: MongooseID | null,
-	edited: boolean,
-	deleted: boolean,
-	reactions: Map<MongooseID, string> | null,
+  conversationId: MongooseID
+  from: MongooseID
+  content: string
+  postedAt: Date
+  replyTo: MongooseID | null
+  edited: boolean
+  deleted: boolean
+  reactions: Map<MongooseID, string> | null
 }
 
 const MessageSchema: Schema<IMessage> = new Schema<IMessage>({
@@ -49,8 +49,8 @@ const MessageSchema: Schema<IMessage> = new Schema<IMessage>({
     of: String,
     default: null
   }
-});
+})
 
-const MessageModel = mongoose.model<IMessage>("Message", MessageSchema);
+const MessageModel = mongoose.model<IMessage>('Message', MessageSchema)
 
-module.exports = MessageModel;  
+module.exports = MessageModel

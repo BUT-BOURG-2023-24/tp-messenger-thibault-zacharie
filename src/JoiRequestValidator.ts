@@ -1,80 +1,79 @@
-import * as joi from "joi";
-const { joiPasswordExtendCore } = require('joi-password');
-const joiPassword = joi.extend(joiPasswordExtendCore);
+import * as joi from 'joi'
 
-import { Request } from "express";
+import { type Request } from 'express'
+const { joiPasswordExtendCore } = require('joi-password')
+const joiPassword = joi.extend(joiPasswordExtendCore)
 
-interface JoiRequestValidatorResponse
-{
-	error?: string
+interface JoiRequestValidatorResponse {
+  error?: string
 }
 
-interface JoiRouteValidator
-{
-	route: string,
-	method: string,
-	validatorSchema: joi.ObjectSchema<any>
+interface JoiRouteValidator {
+  route: string
+  method: string
+  validatorSchema: joi.ObjectSchema<any>
 }
 
-class JoiRequestValidator 
-{
-	validators: JoiRouteValidator[] = 
-	[
-		{
-			route: '/users/create',
-			method: 'POST',
-			validatorSchema: joi.object({
-				username: joi.string().alphanum().min(4).max(12).required(),
-				password: joiPassword
-                    .string()
-                    .minOfSpecialCharacters(1)
-                    .minOfLowercase(1)
-                    .minOfUppercase(1)
-                    .minOfNumeric(1)
-                  	.noWhiteSpaces()
-                    .onlyLatinCharacters()
-                    .required(),
-			})
-		},
-		{
-			route: '/users/login',
-			method: 'POST',
-			validatorSchema: joi.object({
-				username: joi.string().required(),
-				password: joi.string().required()
-			})
-		},
-		{
-			route: '/message/create',
-			method: 'POST',
-			validatorSchema: joi.object({
-				conversationId: joi.string().hex().length(24),
-				from: joi.string().hex().length(24),
-				content: joi.string().max(255),
-				replyTo: joi.string().hex().length(24).allow(null),
-				edited: joi.boolean().required(),
-				deleted: joi.boolean().required(),
-				reactions: joi.object().allow(null)
-			})
-		}
-	];
+class JoiRequestValidator {
+  validators: JoiRouteValidator[] =
+    [
+      {
+        route: '/users/create',
+        method: 'POST',
+        validatorSchema: joi.object({
+          username: joi.string().alphanum().min(4).max(12).required(),
+          password: joiPassword
+            .string()
+            .minOfSpecialCharacters(1)
+            .minOfLowercase(1)
+            .minOfUppercase(1)
+            .minOfNumeric(1)
+            .noWhiteSpaces()
+            .onlyLatinCharacters()
+            .required()
+        })
+      },
+      {
+        route: '/users/login',
+        method: 'POST',
+        validatorSchema: joi.object({
+          username: joi.string().required(),
+          password: joi.string().required()
+        })
+      },
+      {
+        route: '/message/create',
+        method: 'POST',
+        validatorSchema: joi.object({
+          conversationId: joi.string().hex().length(24),
+          from: joi.string().hex().length(24),
+          content: joi.string().max(255),
+          replyTo: joi.string().hex().length(24).allow(null),
+          edited: joi.boolean(),
+          deleted: joi.boolean(),
+          reactions: joi.object().allow(null),
+          user: joi.object({
+            id: joi.string().hex().length(24)
+          })
+        })
+      }
+    ]
 
-	validate(request: Request): JoiRequestValidatorResponse 
-	{
-		const validator = this.validators.find((validator) => validator.route === request.baseUrl + request.route.path);
+  validate (request: Request): JoiRequestValidatorResponse {
+    const validator = this.validators.find((validator) => validator.route === request.baseUrl + request.route.path)
 
-		if(!validator) {
-			return {};
-		}
+    if (!validator) {
+      return {}
+    }
 
-		const { error } = validator.validatorSchema.validate(request.body);
+    const { error } = validator.validatorSchema.validate(request.body)
 
-		if(error) {
-			return { error: error.message };
-		};
+    if (error) {
+      return { error: error.message }
+    };
 
-		return {};
-	}
+    return {}
+  }
 }
 
-export const JoiRequestValidatorInstance = new JoiRequestValidator();
+export const JoiRequestValidatorInstance = new JoiRequestValidator()

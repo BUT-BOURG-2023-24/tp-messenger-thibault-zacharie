@@ -1,36 +1,32 @@
-import { Request, Response, NextFunction } from "express";
-import config from './config';
+import { type Request, type Response, type NextFunction } from 'express'
+import config from './config'
 
-const jwt = require('jsonwebtoken');
-require("dotenv/config")
+const jwt = require('jsonwebtoken')
+require('dotenv/config')
 
 interface CustomResponse extends Response {
-  userId?: string;
+  userId?: string
 }
 
-function checkAuth(req: Request, res: CustomResponse, next: NextFunction)
-{
-	const token = req.headers.authorization;
-	if(!token)
-	{
-		return res.status(401).json({error:'Need a token!'});
-	}
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+async function checkAuth (req: Request, res: CustomResponse, next: NextFunction) {
+  const token = req.headers.authorization
+  if (!token) {
+    return res.status(401).json({ error: 'Need a token!' })
+  }
 
-	console.log(config.SECRET_JWT_KEY);
+  const decodedToken = jwt.verify(token, config.SECRET_JWT_KEY)
+  const userId = decodedToken.userId
 
-	const decodedToken = jwt.verify(token, config.SECRET_JWT_KEY);
-	const userId = decodedToken.userId;
+  if (req.body.userId && req.body.userId !== userId) {
+    return res.status(401).json({ error: 'Invalid token!' })
+  }
 
-	if (req.body.userId && req.body.userId !== userId) 
-	{
-		return res.status(401).json({error:'Invalid token!'});
-	}
-  
-  res.userId = userId;
-  
-	next();
+  req.body.user = { id: userId }
+
+  next()
 }
 
 module.exports = {
-  checkAuth,
+  checkAuth
 }
