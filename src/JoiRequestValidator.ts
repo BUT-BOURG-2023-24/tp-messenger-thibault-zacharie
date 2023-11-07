@@ -56,6 +56,26 @@ class JoiRequestValidator {
             id: joi.string().hex().length(24)
           })
         })
+      },
+      {
+        route: '/message/:id/edit',
+        method: 'POST',
+        validatorSchema: joi.object({
+          editContent: joi.string().max(255),
+          user: joi.object({
+            id: joi.string().hex().length(24)
+          })
+        })
+      },
+      {
+        route: '/message/:id/react',
+        method: 'POST',
+        validatorSchema: joi.object({
+          reaction: joi.string(),
+          user: joi.object({
+            id: joi.string().hex().length(24)
+          })
+        })
       }
     ]
 
