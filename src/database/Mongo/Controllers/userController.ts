@@ -11,14 +11,13 @@ async function createUser(req: Request, res: Response) {
     const { username, password } = req.body;
     
     const user = await User.findOne({username: username});
-    if(user) {
+    if(user)
       return res.status(400).send("User already exist");
 
     const { error } = JoiRequestValidatorInstance.validate(req);
     
-    if(error) {
+    if(error)
       return res.status(400).json({error: error});
-    }
 
     let hash = await bcrypt.hash(password, 5);
     const newUser = new User({username: username, password: hash, profilePic: pictures.pickRandom()});

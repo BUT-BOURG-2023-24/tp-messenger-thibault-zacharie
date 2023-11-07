@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import config from './config';
 
 const jwt = require('jsonwebtoken');
 require("dotenv/config")
@@ -15,7 +16,9 @@ function checkAuth(req: Request, res: CustomResponse, next: NextFunction)
 		return res.status(401).json({error:'Need a token!'});
 	}
 
-	const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
+	console.log(config.SECRET_JWT_KEY);
+
+	const decodedToken = jwt.verify(token, config.SECRET_JWT_KEY);
 	const userId = decodedToken.userId;
 
 	if (req.body.userId && req.body.userId !== userId) 

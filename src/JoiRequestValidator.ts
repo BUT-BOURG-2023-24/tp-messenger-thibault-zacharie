@@ -43,6 +43,19 @@ class JoiRequestValidator
 				username: joi.string().required(),
 				password: joi.string().required()
 			})
+		},
+		{
+			route: '/message/create',
+			method: 'POST',
+			validatorSchema: joi.object({
+				conversationId: joi.string().hex().length(24),
+				from: joi.string().hex().length(24),
+				content: joi.string().max(255),
+				replyTo: joi.string().hex().length(24).allow(null),
+				edited: joi.boolean().required(),
+				deleted: joi.boolean().required(),
+				reactions: joi.object().allow(null)
+			})
 		}
 	];
 
