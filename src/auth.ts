@@ -15,8 +15,8 @@ async function checkAuth (req: Request, res: CustomResponse, next: NextFunction)
     return res.status(401).json({ error: 'Need a token!' })
   }
 
-	console.log(config.SECRET_JWT_KEY);
-	console.log(token);
+  const decodedToken = jwt.verify(token, config.SECRET_JWT_KEY)
+  const userId = decodedToken.userId
 
   if (req.body.userId && req.body.userId !== userId) {
     return res.status(401).json({ error: 'Invalid token!' })

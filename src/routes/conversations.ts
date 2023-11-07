@@ -3,7 +3,7 @@ const router = express.Router()
 const conversationController = require('../database/Mongo/Controllers/conversationController')
 const auth = require('../auth')
 
-router.get('/participants', auth.checkAuth ,conversationController.getConversationWithParticipants);
+router.get('/participants', auth.checkAuth, conversationController.getConversationWithParticipants)
 
 router.get('/user/:id', auth.checkAuth, conversationController.getAllConversationsForUser)
 
@@ -17,4 +17,4 @@ router.put('/setSeen/:id', auth.checkAuth, conversationController.setConversatio
 
 router.delete('/delete/:id', auth.checkAuth, conversationController.deleteConversation)
 
-module.exports = router;
+module.exports = router

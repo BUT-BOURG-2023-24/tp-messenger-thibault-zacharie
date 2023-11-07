@@ -1,13 +1,16 @@
-import { makeApp } from "./app";
-import  Database from "./database/database";
-import config from "./config";
+import { makeApp } from './app'
+import Database from './database/database'
+import config from './config'
 
-let DBInstance = new Database(
-	false
-);
+async function startServer (): Promise<void> {
+  const DBInstance = new Database(false)
+  const { server } = await makeApp(DBInstance)
 
-const { app, server } = makeApp(DBInstance);
+  server.listen(config.PORT, () => {
+    console.log(`Server is listening on http://localhost:${config.PORT}`)
+  })
+}
 
-server.listen(config.PORT, () => {
-	console.log(`Server is listening on http://localhost:${config.PORT}`);
-});
+startServer().catch((error: Error) => {
+  console.error('Error starting the server:', error)
+})
