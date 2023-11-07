@@ -17,6 +17,7 @@ function checkAuth(req: Request, res: CustomResponse, next: NextFunction)
 	}
 
 	console.log(config.SECRET_JWT_KEY);
+	console.log(token);
 
 	const decodedToken = jwt.verify(token, config.SECRET_JWT_KEY);
 	const userId = decodedToken.userId;
@@ -26,7 +27,7 @@ function checkAuth(req: Request, res: CustomResponse, next: NextFunction)
 		return res.status(401).json({error:'Invalid token!'});
 	}
   
-  res.userId = userId;
+  req.body.user = {id: userId}
   
 	next();
 }

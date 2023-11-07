@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { JoiRequestValidatorInstance } from "../../../JoiRequestValidator";
+import config from "../../../config";
 
 const User = require("../Models/UserModel");
 const pictures = require("../../../pictures");
@@ -74,7 +75,7 @@ async function login(req: Request, res: Response) {
       return res.status(400).send("Incorrect password");
     }
     
-    const token = jwt.sign({userId: user._id}, 'jXp0ZVTyKIMdvzgOnb45Ig', {expiresIn: "1h"});
+    const token = jwt.sign({userId: user._id}, 'jXp0ZVTyKIMdvzgOnb45Ig', {expiresIn: config.SECRET_JWT_KEY_RENEWAL || "1h"});
 
     res.status(200).json({userId: user._id, token: token});
   }

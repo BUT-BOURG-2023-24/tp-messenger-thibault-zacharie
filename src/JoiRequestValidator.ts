@@ -54,8 +54,40 @@ class JoiRequestValidator
 				replyTo: joi.string().hex().length(24).allow(null),
 				edited: joi.boolean().required(),
 				deleted: joi.boolean().required(),
-				reactions: joi.object().allow(null)
+				reactions: joi.object().allow(null),
+				user: joi.object({
+					id: joi.string().hex().length(24)
+				})
 			})
+		},
+		{
+			route: '/conversations/create',
+			method: 'POST',
+			validatorSchema: joi.object({
+				participants: joi.array().items(joi.string().hex().length(24)).required(),
+				messages: joi.array().items(joi.string().hex().length(24)).required(),
+				title: joi.string().max(24),
+				seen: joi.array().items(
+					joi.string().hex().length(24),
+				),
+				user: joi.object({
+					id: joi.string().hex().length(24)
+				})
+			})
+		},
+		{
+			route: '/conversations/addMessage',
+			method: 'PUT',
+			validatorSchema: joi.object({
+				message: joi.string().hex().length(24)
+			}).or('message')
+		},
+		{
+			route: '/conversations/setSeen',
+			method: 'PUT',
+			validatorSchema: joi.object({
+				message: joi.string().hex().length(24)
+			}).or('seen')
 		}
 	];
 

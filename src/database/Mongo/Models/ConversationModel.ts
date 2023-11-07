@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Date, ObjectId } from "mongoose";
+import mongoose, { Schema, Document, Date } from "mongoose";
 import { MongooseID } from "../../../types";
 
 export interface IConversation extends Document {
@@ -15,7 +15,7 @@ const conversationSchema: Schema<IConversation> = new Schema<IConversation>({
     required: true
   },
   messages: {
-    type: [{ type: Schema.Types.ObjectId, ref: 'Message' }], 
+    type: [{ type: Schema.Types.ObjectId, ref: 'Message' }],
     required: true
   },
   title: {
@@ -34,4 +34,4 @@ const conversationSchema: Schema<IConversation> = new Schema<IConversation>({
 
 const ConversationModel = mongoose.model<IConversation>("Conversation", conversationSchema);
 
-export default ConversationModel;
+module.exports = ConversationModel;
