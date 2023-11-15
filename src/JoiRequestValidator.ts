@@ -21,14 +21,10 @@ class JoiRequestValidator {
         route: '/users/login',
         method: 'POST',
         validatorSchema: joi.object({
-          username: joi.string().alphanum().min(5).max(15).required(),
+          username: joi.string().alphanum().required(),
           password: joiPassword
             .string()
             .min(5).max(15)
-            .minOfLowercase(1)
-            .minOfUppercase(1)
-            .minOfNumeric(1)
-            .noWhiteSpaces()
             .onlyLatinCharacters()
             .required()
         })
