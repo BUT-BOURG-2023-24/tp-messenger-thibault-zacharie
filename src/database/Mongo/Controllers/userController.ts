@@ -72,7 +72,14 @@ async function login (req: Request, res: Response): Promise<Response> {
 
     const token = jwt.sign({ userId: user._id }, config.SECRET_JWT_KEY, { expiresIn: config.EXPIRE_TOKEN_TIME ?? '1h' })
 
-    return res.status(200).json({ userId: user._id, token })
+    return res.status(200).json({
+      user: {
+        _id: user._id,
+        name: user.username
+      },
+      token,
+      isNewUser: false
+    })
   } catch (error) {
     return res.status(500).send(error)
   }
