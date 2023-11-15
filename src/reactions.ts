@@ -1,9 +1,9 @@
-enum Reactions {
-  HAPPY, 
-  SAD, 
-  THUMBSUP, 
-  THUMBSDOWN, 
-  LOVE
-};
+const Reactions = [
+  'HAPPY',
+  'SAD',
+  'THUMBSUP',
+  'THUMBSDOWN',
+  'LOVE'
+]
 
-export default Reactions;
+export default Reactions

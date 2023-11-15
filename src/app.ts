@@ -17,7 +17,7 @@ async function makeApp (database: Database): Promise<{ app: Express, server: htt
   const messageRoutes = require('./routes/messages')
   const conversationRoutes = require('./routes/conversations')
   app.use('/users', userRoutes)
-  app.use('/message', messageRoutes)
+  app.use('/messages', messageRoutes)
   app.use('/conversations', conversationRoutes)
 
   const io = new Server(server, { cors: { origin: '*' } })
