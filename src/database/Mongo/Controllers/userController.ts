@@ -7,22 +7,41 @@ const pictures = require('../../../pictures')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
+/**
+ * description : function which check if user exist, if yes login it and if no create an account
+ * @returns user, token and if its a new user or not
+ */
 async function createUser (req: Request, res: Response): Promise<Response> {
   try {
     const { username, password } = req.body
-
-    const user = await User.findOne({ username })
-    if (user) { return res.status(400).send('User already exist') }
+    const userLogin: { user: { _id: string, name: string }, token: string, newUser: boolean } = {
+      user: { _id: '', name: username },
+      token: '',
+      newUser: false
+    }
 
     const { error } = JoiRequestValidatorInstance.validate(req)
-
     if (error) { return res.status(400).json({ error }) }
 
-    const hash = await bcrypt.hash(password, 5)
-    const newUser = new User({ username, password: hash, profilePic: pictures.pickRandom() })
-    newUser.save()
+    const user = await User.findOne({ username })
+    if (user) {
+      const pwdCorrect = await bcrypt.compare(password, user.password)
+      if (!pwdCorrect) {
+        return res.status(400).send('Incorrect password')
+      }
+      userLogin.user._id = user._id
+    } else {
+      const hash = await bcrypt.hash(password, 5)
+      const user = new User({ username, password: hash, profilePic: pictures.pickRandom() })
+      user.save()
+      userLogin.newUser = true
+      userLogin.user._id = user._id
+    }
 
-    return res.status(200).send(newUser)
+    const token = jwt.sign({ userId: userLogin.user._id }, config.SECRET_JWT_KEY, { expiresIn: config.EXPIRE_TOKEN_TIME ?? '1h' })
+    userLogin.token = token
+
+    return res.status(200).json(userLogin)
   } catch (error) {
     return res.status(500).send('Internal Server Error')
   }
@@ -52,39 +71,6 @@ async function getUserById (req: Request, res: Response): Promise<Response> {
   }
 }
 
-async function login (req: Request, res: Response): Promise<Response> {
-  try {
-    const { username, password } = req.body
-
-    if (!req.body || !username || !password) {
-      return res.status(400).json({ message: 'Invalid request body' })
-    }
-
-    const user = await User.findOne({ username }).catch(() => res.status(500).send('Internal error'))
-    if (!user) {
-      return res.status(400).send('User not found')
-    }
-
-    const pwdCorrect = await bcrypt.compare(password, user.password)
-    if (!pwdCorrect) {
-      return res.status(400).send('Incorrect password')
-    }
-
-    const token = jwt.sign({ userId: user._id }, config.SECRET_JWT_KEY, { expiresIn: config.EXPIRE_TOKEN_TIME ?? '1h' })
-
-    return res.status(200).json({
-      user: {
-        _id: user._id,
-        name: user.username
-      },
-      token,
-      isNewUser: false
-    })
-  } catch (error) {
-    return res.status(500).send(error)
-  }
-};
-
 async function getUsersByIds (req: Request, res: Response): Promise<Response> {
   try {
     const { ids } = req.body
@@ -101,21 +87,9 @@ async function getUsersByIds (req: Request, res: Response): Promise<Response> {
   }
 };
 
-async function getUsers (req: Request, res: Response): Promise<Response> {
-  try {
-    const users = await User.find()
-
-    return res.status(200).send(users)
-  } catch (error) {
-    return res.status(500).json({ 'Interval Server Error': error })
-  }
-}
-
 module.exports = {
   createUser,
   getUserByName,
   getUserById,
-  login,
-  getUsersByIds,
-  getUsers
+  getUsersByIds
 }

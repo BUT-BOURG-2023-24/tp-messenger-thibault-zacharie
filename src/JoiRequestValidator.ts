@@ -18,27 +18,19 @@ class JoiRequestValidator {
   validators: JoiRouteValidator[] =
     [
       {
-        route: '/users/create',
+        route: '/users/login',
         method: 'POST',
         validatorSchema: joi.object({
-          username: joi.string().alphanum().min(4).max(12).required(),
+          username: joi.string().alphanum().min(5).max(15).required(),
           password: joiPassword
             .string()
-            .minOfSpecialCharacters(1)
+            .min(5).max(15)
             .minOfLowercase(1)
             .minOfUppercase(1)
             .minOfNumeric(1)
             .noWhiteSpaces()
             .onlyLatinCharacters()
             .required()
-        })
-      },
-      {
-        route: '/users/login',
-        method: 'POST',
-        validatorSchema: joi.object({
-          username: joi.string().required(),
-          password: joi.string().required()
         })
       },
       {
