@@ -4,38 +4,19 @@ import Reactions from '../../../reactions'
 
 const Message = require('../Models/MessageModel')
 
-async function createMessage (req: Request, res: Response): Promise<Response> {
-  try {
-    const { conversationId, content } = req.body
-    const { id } = req.body.user
-    const { error } = JoiRequestValidatorInstance.validate(req)
-
-    if (error) { return res.status(400).json({ error }) }
-
-    const newMessage = new Message({
-      conversationId,
-      from: id,
-      content,
-      postedAt: new Date()
-    })
-    await newMessage.save()
-
-    return res.status(200).send(newMessage)
-  } catch (error) {
-    return res.status(500).json({ 'Internal Server Error': error })
-  }
+async function createMessage (conversationId: string, content: string, userId: string, replyId: string | null): Promise<any> {
+  const newMessage = new Message({
+    conversationId,
+    from: userId,
+    content,
+    postedAt: new Date(),
+    replyTo: replyId
+  })
+  await newMessage.save()
+  return newMessage
 };
 
-async function getMessageById (req: Request, res: Response): Promise<Response> {
-  try {
-    const { id } = req.params
-    const message = await Message.findById(id)
-
-    return res.status(200).send(message)
-  } catch (error) {
-    return res.status(500).json({ 'Internal Server Error': error })
-  }
-}
+const getMessageById = async (id: string): Promise<any> => Message.findById(id)
 
 async function deleteMessage (req: Request, res: Response): Promise<Response> {
   try {

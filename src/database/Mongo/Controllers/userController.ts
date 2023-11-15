@@ -47,45 +47,9 @@ async function createUser (req: Request, res: Response): Promise<Response> {
   }
 }
 
-async function getUserByName (req: Request, res: Response): Promise<Response> {
-  try {
-    const { username } = req.params
-
-    const user = await User.findOne({ username }).catch(() => res.status(500).send("User don't exist"))
-
-    return res.status(200).send(user)
-  } catch (error) {
-    return res.status(500).send('Internal Server Error')
-  }
-}
-
-async function getUserById (req: Request, res: Response): Promise<Response> {
-  try {
-    const { id } = req.params
-
-    const user = await User.findOne({ _id: id }).catch(() => res.status(500).send("User don't exist"))
-
-    return res.status(200).send(user)
-  } catch (error) {
-    return res.status(500).send('Internal Server Error')
-  }
-}
-
-async function getUsersByIds (req: Request, res: Response): Promise<Response> {
-  try {
-    const { ids } = req.body
-
-    if (!req.body || !ids) {
-      return res.status(400).json({ message: 'Invalid request body' })
-    }
-
-    const users = await User.find({ _id: { $in: ids } }).catch((error: Error) => res.status(500).json({ error }))
-
-    return res.status(200).send(users)
-  } catch (error) {
-    return res.status(500).json({ 'Interval Server Error': error })
-  }
-};
+const getUserByName = async (username: string): Promise<any> => User.findOne({ username })
+const getUserById = async (id: string): Promise<any> => User.findOne({ _id: id })
+const getUsersByIds = async (ids: string[]): Promise<any> => User.find({ _id: { $in: ids } })
 
 module.exports = {
   createUser,
