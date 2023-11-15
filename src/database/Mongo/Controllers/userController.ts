@@ -38,7 +38,7 @@ async function createUser (req: Request, res: Response): Promise<Response> {
       userLogin.user._id = user._id
     }
 
-    const token = jwt.sign({ userId: userLogin.user._id }, config.SECRET_JWT_KEY, { expiresIn: config.EXPIRE_TOKEN_TIME ?? '1h' })
+    const token = jwt.sign({ userId: userLogin.user._id }, config.SECRET_JWT_KEY, { expiresIn: config.EXPIRE_TOKEN_TIME ?? '24h' })
     userLogin.token = token
 
     return res.status(200).json(userLogin)

@@ -30,36 +30,11 @@ class JoiRequestValidator {
         })
       },
       {
-        route: '/message/create',
-        method: 'POST',
+        route: '/messages/:id',
+        method: 'PUT',
         validatorSchema: joi.object({
-          conversationId: joi.string().hex().length(24),
-          from: joi.string().hex().length(24),
-          content: joi.string().max(255),
-          replyTo: joi.string().hex().length(24).allow(null),
-          edited: joi.boolean(),
-          deleted: joi.boolean(),
-          reactions: joi.object().allow(null),
-          user: joi.object({
-            id: joi.string().hex().length(24)
-          })
-        })
-      },
-      {
-        route: '/message/:id/edit',
-        method: 'POST',
-        validatorSchema: joi.object({
-          editContent: joi.string().max(255),
-          user: joi.object({
-            id: joi.string().hex().length(24)
-          })
-        })
-      },
-      {
-        route: '/message/:id/react',
-        method: 'POST',
-        validatorSchema: joi.object({
-          reaction: joi.string(),
+          reaction: joi.string().uppercase(),
+          newMessageContent: joi.string().max(255),
           user: joi.object({
             id: joi.string().hex().length(24)
           })
