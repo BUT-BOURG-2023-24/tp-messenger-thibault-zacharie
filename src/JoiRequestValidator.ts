@@ -66,33 +66,29 @@ class JoiRequestValidator {
         })
       },
       {
-        route: '/conversations/create',
+        route: '/conversations/',
         method: 'POST',
         validatorSchema: joi.object({
-          participants: joi.array().items(joi.string().hex().length(24)).required(),
-          messages: joi.array().items(joi.string().hex().length(24)).required(),
-          title: joi.string().max(24),
-          seen: joi.array().items(
-            joi.string().hex().length(24)
-          ),
+          concernedUsersIds: joi.array().items(joi.string().hex().length(24)).required(),
           user: joi.object({
             id: joi.string().hex().length(24)
           })
         })
       },
       {
-        route: '/conversations/addMessage',
-        method: 'PUT',
+        route: '/conversations/',
+        method: 'POST',
         validatorSchema: joi.object({
-          message: joi.string().hex().length(24)
-        }).or('message')
+          content: joi.string().required().max(255),
+          messageReplyId: joi.string().hex().length(24).allow(null)
+        }).or('content', 'messageReplyId')
       },
       {
-        route: '/conversations/setSeen',
+        route: '/conversations/see',
         method: 'PUT',
         validatorSchema: joi.object({
-          message: joi.string().hex().length(24)
-        }).or('seen')
+          messageId: joi.string().hex().length(24)
+        }).or('see')
       }
     ]
 
@@ -107,7 +103,7 @@ class JoiRequestValidator {
 
     if (error) {
       return { error: error.message }
-    };
+    }
 
     return {}
   }

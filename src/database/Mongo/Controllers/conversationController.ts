@@ -1,8 +1,10 @@
 import { type Request, type Response } from 'express'
 import { JoiRequestValidatorInstance } from '../../../JoiRequestValidator'
+import { Types } from 'mongoose'
+import { type IConversation } from '../Models/ConversationModel'
 
 const Conversation = require('../Models/ConversationModel')
-
+const Message = require('../Models/MessageModel')
 async function getConversationWithParticipants (req: Request, res: Response): Promise<Response> {
   try {
     const { firstParticipant, secondParticipant } = req.body
@@ -22,17 +24,32 @@ async function getConversationWithParticipants (req: Request, res: Response): Pr
 
 async function getAllConversationsForUser (req: Request, res: Response): Promise<Response> {
   try {
-    const { id } = req.params
+    const { id } = req.body.user
+    console.log(id)
     const allConversations = await Conversation.find({
       participants: { $in: [id] }
     })
-    if (allConversations) {
-      return res.status(200).send({ allConversations })
+
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid conversation ID' })
+    }
+
+    if (allConversations && allConversations.length > 0) {
+      const conversationsData = allConversations.map((conversation: IConversation) => ({
+        _id: conversation._id,
+        participants: conversation.participants,
+        messages: conversation.messages,
+        title: conversation.title,
+        lastUpdate: conversation.lastUpdate,
+        seen: conversation.seen
+      }))
+
+      return res.status(200).json({ conversations: conversationsData })
     } else {
-      return res.status(404).send("The conversation couldn't been found for this user !")
+      return res.status(400).json({ error: 'No conversations found for this user.' })
     }
   } catch (error) {
-    return res.status(500).send({ 'An error occurred while searching the conversation for this user: ': error })
+    return res.status(500).send({ 'An error occurred while searching for conversations: ': error })
   }
 }
 
@@ -52,43 +69,63 @@ async function getConversationById (req: Request, res: Response): Promise<Respon
 
 async function createConversation (req: Request, res: Response): Promise<Response> {
   try {
-    const { participants, messages, title } = req.body
-    const { error } = JoiRequestValidatorInstance.validate(req)
+    const validationResult = JoiRequestValidatorInstance.validate(req)
 
-    if (error) { return res.status(400).json({ error }) }
+    if (validationResult.error) {
+      return res.status(400).json({ error: validationResult.error })
+    }
+
+    const { concernedUsersIds } = req.body
+
+    const participants = concernedUsersIds.map((userId: string) => new Types.ObjectId(userId))
 
     const newConversation = new Conversation({
-      participants,
-      messages,
-      title,
-      lastUpdate: new Date()
+      participants
     })
+
     await newConversation.save()
 
-    return res.status(200).send(newConversation)
+    return res.status(200).json({ conversation: newConversation })
   } catch (error) {
-    return res.status(500).send({ 'An error occurred while creating the conversation: ': error })
+    console.error('An error occurred while creating the conversation:', error)
+    return res.status(500).json({ error: 'Internal Server Error' })
   }
 }
 
 async function addMessageToConversation (req: Request, res: Response): Promise<Response> {
   try {
     const { id } = req.params
-    const { message } = req.body
+    const { content, messageReplyId } = req.body
     const { error } = JoiRequestValidatorInstance.validate(req)
 
-    if (error) { return res.status(400).json({ error }) }
+    if (error) {
+      return res.status(400).json({ error })
+    }
+
+    const userId = req.body.user.id
+
+    const newMessage = new Message({
+      conversationId: id,
+      from: userId,
+      content,
+      postedAt: new Date(),
+      replyTo: messageReplyId || null
+    })
+
+    await newMessage.save()
+
+    const messageId = newMessage.id
 
     const updatedConversation = await Conversation.findOneAndUpdate(
       { _id: id },
-      { $push: { messages: message } },
+      { $push: { messages: messageId } },
       { new: true }
     )
 
     if (updatedConversation) {
-      return res.status(200).json(updatedConversation)
+      return res.status(200).json({ conversation: updatedConversation })
     } else {
-      return res.status(404).send("The conversation couldn't been found !")
+      return res.status(404).send("The conversation couldn't be found!")
     }
   } catch (error) {
     return res.status(500).send({ 'An error occurred while updating the conversation: ': error })
@@ -98,44 +135,60 @@ async function addMessageToConversation (req: Request, res: Response): Promise<R
 async function setConversationSeenForUserAndMessage (req: Request, res: Response): Promise<Response> {
   try {
     const { id } = req.params
-    const { user, message } = req.body
+    const { messageId, user } = req.body
     const { error } = JoiRequestValidatorInstance.validate(req)
 
-    if (error) { return res.status(400).json({ error }) }
-
-    const conversation = await Conversation.findById(id)
-    if (!conversation) {
-      return res.status(404).send("The conversation couldn't been found !")
+    if (error) {
+      return res.status(400).json({ error })
     }
 
-    const updateSeen = conversation.seen || new Map()
-    updateSeen.set(user.id, message)
+    const conversation = await Conversation.findById(id)
+
+    if (!conversation) {
+      return res.status(404).json({ error: "The conversation couldn't be found!" })
+    }
+
+    const updateSeen = new Map(conversation.seen)
+    updateSeen.set(user.id, messageId)
 
     const { modifiedCount } = await Conversation.updateOne(
       { _id: id },
       { seen: updateSeen }
     )
+
     if (modifiedCount === 0) {
-      return res.status(400).send("The message couldn't been visualized")
+      const existingConversation = await Conversation.findById(id)
+      if (existingConversation) {
+        return res.status(200).send({ message: 'This seen already exist', conversation: existingConversation })
+      } else {
+        return res.status(400).json({ error: "The message couldn't be visualized" })
+      }
     } else {
-      return res.status(200).json(conversation)
+      const updatedConversation = await Conversation.findById(id)
+      return res.status(200).json({ conversation: updatedConversation })
     }
   } catch (error) {
-    return res.status(500).send({ 'An error occurred while updating the product: ': error })
+    return res.status(500).send({ 'An error occurred while setting the conversation seen: ': error })
   }
 }
 
 async function deleteConversation (req: Request, res: Response): Promise<Response> {
   const { id } = req.params
+
+  if (!Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid conversation ID' })
+  }
+
   try {
-    const deletedProductData = await Conversation.findByIdAndRemove(id)
-    if (deletedProductData) {
-      return res.status(200).send('Conversation deleted successfully.')
+    const deletedConversation = await Conversation.findByIdAndRemove(id)
+
+    if (deletedConversation) {
+      return res.status(200).json({ conversation: deletedConversation })
     } else {
-      return res.status(404).send("The conversation hasn't been found !")
+      return res.status(404).json({ error: "The conversation hasn't been found!" })
     }
   } catch (error) {
-    return res.status(500).send({ 'An error has occurred during the suppression of the conversation: ': error })
+    return res.status(500).send({ 'An error occurred during the conversation deletion: ': error })
   }
 }
 
