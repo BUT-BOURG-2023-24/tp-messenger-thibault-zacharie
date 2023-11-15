@@ -70,7 +70,7 @@ async function login (req: Request, res: Response): Promise<Response> {
       return res.status(400).send('Incorrect password')
     }
 
-    const token = jwt.sign({ userId: user._id }, config.SECRET_JWT_KEY, { expiresIn: config.EXPIRE_TOKEN_TIME ?? '1h' })
+    const token = jwt.sign({ userId: user._id }, config.SECRET_JWT_KEY, { expiresIn: config.EXPIRE_TOKEN_TIME ?? '24h' })
 
     return res.status(200).json({ userId: user._id, token })
   } catch (error) {

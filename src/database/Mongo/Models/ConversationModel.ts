@@ -15,16 +15,13 @@ const conversationSchema: Schema<IConversation> = new Schema<IConversation>({
     required: true
   },
   messages: {
-    type: [{ type: Schema.Types.ObjectId, ref: 'Message' }],
-    required: true
+    type: [{ type: Schema.Types.ObjectId, ref: 'Message' }]
   },
   title: {
-    type: String,
-    required: true
+    type: String
   },
   lastUpdate: {
-    type: Date,
-    required: true
+    type: Date
   },
   seen: {
     type: Map,
