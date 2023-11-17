@@ -3,6 +3,7 @@ import express, { type Express } from 'express'
 import { Server } from 'socket.io'
 import { type Database } from './database/database'
 import { SocketController } from './socket/socketController'
+const cors = require('cors')
 
 const app = express()
 
@@ -12,6 +13,11 @@ async function makeApp (database: Database): Promise<{ app: Express, server: htt
 
   const server = http.createServer(app)
   app.use(express.json())
+
+  app.use(cors({
+    credentials: true,
+    origin: 'http://localhost:3000'
+  }))
 
   const userRoutes = require('./routes/users')
   const messageRoutes = require('./routes/messages')

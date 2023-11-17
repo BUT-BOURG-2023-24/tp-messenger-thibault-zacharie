@@ -1,33 +1,18 @@
-import { type Request, type Response } from 'express'
-import { JoiRequestValidatorInstance } from '../../../JoiRequestValidator'
 import config from '../../../config'
+import { type IUser } from '../Models/UserModel'
 
 const User = require('../Models/UserModel')
 const pictures = require('../../../pictures')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-/**
- * description : function which check if user exist, if yes login it and if no create an account
- * @returns user, token and if its a new user or not
- */
-async function createUser (req: Request, res: Response): Promise<Response> {
+async function createUser (username: string, password: string): Promise<IUser> {
   try {
-    const { username, password } = req.body
-    const userLogin: { user: { _id: string, name: string }, token: string, newUser: boolean } = {
-      user: { _id: '', name: username },
-      token: '',
-      newUser: false
-    }
-
-    const { error } = JoiRequestValidatorInstance.validate(req)
-    if (error) { return res.status(400).json({ error }) }
-
     const user = await User.findOne({ username })
     if (user) {
       const pwdCorrect = await bcrypt.compare(password, user.password)
-      if (!pwdCorrect) {
-        return res.status(400).send('Incorrect password')
+      if (pwdCorrect) {
+        return user
       }
       userLogin.user._id = user._id
     } else {
