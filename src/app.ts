@@ -1,7 +1,7 @@
 import * as http from 'http'
 import express, { type Express } from 'express'
 import { Server } from 'socket.io'
-import { type Database } from './database/database'
+import { type Database } from './database'
 import { SocketController } from './socket/socketController'
 const cors = require('cors')
 

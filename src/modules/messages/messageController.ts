@@ -1,6 +1,6 @@
 import { type Request, type Response } from 'express'
-import { JoiRequestValidatorInstance } from '../../../JoiRequestValidator'
-import Reactions from '../../../reactions'
+import { JoiRequestValidatorInstance } from '../../JoiRequestValidator'
+import Reactions from '../../reactions'
 
 const Message = require('../Models/MessageModel')
 

@@ -1,5 +1,5 @@
 import { makeApp } from './app'
-import Database from './database/database'
+import Database from './database'
 import config from './config'
 
 async function startServer (): Promise<void> {

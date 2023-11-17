@@ -1,7 +1,7 @@
 import mongoose, { type Schema } from 'mongoose'
-import { type Database } from './database/database'
+import { type Database } from './database'
 import { type SocketController } from './socket/socketController'
-import { type ConversationController } from './database/Mongo/Controllers/conversationController'
+import { type ConversationController } from './modules/conversations/conversationController'
 
 export type MongooseID = Schema.Types.ObjectId | string | null
 

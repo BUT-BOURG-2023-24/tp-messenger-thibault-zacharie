@@ -1,5 +1,5 @@
 import { type Request, type Response } from 'express'
-import { JoiRequestValidatorInstance } from '../../../JoiRequestValidator'
+import { JoiRequestValidatorInstance } from '../../JoiRequestValidator'
 
 const Conversation = require('../Models/ConversationModel')
 const MessageController = require('./messageController')

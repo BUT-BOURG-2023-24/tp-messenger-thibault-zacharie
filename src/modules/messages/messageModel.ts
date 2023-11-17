@@ -1,5 +1,5 @@
 import mongoose, { Schema, type Document } from 'mongoose'
-import { type MongooseID } from '../../../types'
+import { type MongooseID } from '../../types'
 
 export interface IMessage extends Document {
   conversationId: MongooseID

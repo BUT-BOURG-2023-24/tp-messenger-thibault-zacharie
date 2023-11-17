@@ -1,4 +1,4 @@
-import { type Database } from '../database/database'
+import { type Database } from '../database'
 import { type Server } from 'socket.io'
 
 export class SocketController {

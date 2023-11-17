@@ -1,5 +1,5 @@
 import mongoose, { Schema, type Document, Date } from 'mongoose'
-import { type MongooseID } from '../../../types'
+import { type MongooseID } from '../../types'
 
 export interface IConversation extends Document {
   participants: MongooseID[]
