@@ -4,21 +4,6 @@ import Reactions from '../../reactions'
 const messageService = require('./messageService')
 
 const Message = require('./messageModel')
-
-async function createMessage (conversationId: string, content: string, userId: string, replyId: string | null): Promise<any> {
-  const newMessage = new Message({
-    conversationId,
-    from: userId,
-    content,
-    postedAt: new Date(),
-    replyTo: replyId
-  })
-  await newMessage.save()
-  return newMessage
-};
-
-const getMessageById = async (id: string): Promise<any> => Message.findById(id)
-
 async function deleteMessage (req: Request, res: Response): Promise<Response> {
   try {
     const { id } = req.params

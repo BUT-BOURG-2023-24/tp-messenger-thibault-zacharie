@@ -28,7 +28,7 @@ async function createConversation (req: Request, res: Response): Promise<Respons
       return res.status(400).json({ error: validationResult.error })
     }
 
-    const conversation = ConversationService.getConversationWithParticipants(concernedUsersIds[0], concernedUsersIds[1])
+    const conversation = await ConversationService.getConversationWithParticipants(concernedUsersIds[0], concernedUsersIds[1])
     if (!conversation) {
       const newConversation = await ConversationService.createConversation(concernedUsersIds)
       return res.status(200).json({ conversation: newConversation })

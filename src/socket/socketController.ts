@@ -2,6 +2,7 @@ import type { Database } from '../database'
 import { type Server, type Socket } from 'socket.io'
 import { type IConversation } from '../modules/conversations/conversationModel'
 import { type IMessage } from '../modules/messages/messageModel'
+
 const conversationController = require('../modules/conversations/conversationController')
 
 export class SocketController {
