@@ -24,7 +24,9 @@ async function createUser (req: Request, res: Response): Promise<any> {
 
 async function getOnlineUsers (req: Request, res: Response): Promise<any> {
   try {
-    console.log(req.body)
+    return res.status(200).send(
+      req.body
+    )
   } catch (error) {
     res.status(500).json({ 'Internal Server Error': error })
   }

@@ -5,11 +5,18 @@ import supertest from "supertest";
 
 describe('USERS', () => {
 	let app: Express, server: http.Server;
+	let userToken: string;
 
 	beforeAll(async () => {
 		let res = await setup();
 		app = res.app;
 		server = res.server;
+
+		const loginResponse = await supertest(app)
+			.post("/users/login")
+			.send({ username: "user1", password: "user1pwd" });
+
+		userToken = loginResponse.body.token;
 	});
 
 	afterAll(async () => {
@@ -20,8 +27,8 @@ describe('USERS', () => {
 		const loginResponse = await supertest(app)
 			.post("/users/login")
 			.send({
-				username: "validUsername",
-				password: "validPassword"
+				username: "user1",
+				password: "user1pwd"
 			});
 
 		expect(loginResponse.status).toBe(200);
@@ -35,8 +42,8 @@ describe('USERS', () => {
 		const loginResponse = await supertest(app)
 			.post("/users/login")
 			.send({
-				username: "validUsername",
-				password: "wrong"
+				username: "user1",
+				password: "user2pwd"
 			});
 
 		// Expecting a 500 status for an invalid password
@@ -45,11 +52,10 @@ describe('USERS', () => {
 	});
 
 	test("GET active users", async () => {
-		const authToken = "eyJ1c2VySWQiOiI2NTZkZmQzNTBiZjFlMTcxZDUyYTkyNDIiLCJpYXQiOjE3MDE3MDcwNjEsImV4cCI6MTcwMTc5MzQ2MX0.nuWxVOV0eNlOXHhQLPgys9KIpjh5iY169aau2DvkEcc";
 
 		const getActiveUsersResponse = await supertest(app)
 			.get("/users/online")
-			.set('Authorization', `${authToken}`);
+			.set('Authorization', `${userToken}`);
 
 		// Expecting a 200 status for a valid token
 		expect(getActiveUsersResponse.status).toBe(200);
