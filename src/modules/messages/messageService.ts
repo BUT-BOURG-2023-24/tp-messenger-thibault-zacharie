@@ -2,7 +2,7 @@ import { type IMessage } from './messageModel'
 
 const Message = require('./messageModel')
 
-const createMessage = async (conversationId: string, content: string, userId: string, replyId: string | null): Promise<IMessage> => {
+const createMessage = async (conversationId: string, content: string, userId: string, replyId: string | null): Promise<any> => {
   const newMessage = new Message({
     conversationId,
     from: userId,

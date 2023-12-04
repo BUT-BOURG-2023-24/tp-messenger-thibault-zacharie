@@ -2,17 +2,13 @@ import { type Request, type Response } from 'express'
 import { JoiRequestValidatorInstance } from '../../JoiRequestValidator'
 
 const Conversation = require('./conversationModel')
-const MessageController = require('../messages/messageController')
+const MessageService = require('../messages/messageService')
 const ConversationService = require('../conversations/conversationService')
-
-const getConversationWithParticipants = async (firstParticipant: string, secondParticipant: string): Promise<any> => Conversation.findOne({
-  participants: { $all: [firstParticipant, secondParticipant] }
-})
 
 async function getAllConversationsForUser (req: Request, res: Response): Promise<Response> {
   try {
     const { id } = req.body.user
-    const allConversations = ConversationService.getAllConversationsForUser(id)
+    const allConversations = await ConversationService.getAllConversationsForUser(id)
 
     if (!allConversations) {
       return res.status(400).send('None conversation found')
@@ -33,11 +29,7 @@ async function createConversation (req: Request, res: Response): Promise<Respons
       return res.status(400).json({ error: validationResult.error })
     }
 
-    const newConversation = new Conversation({
-      participants: concernedUsersIds
-    })
-
-    await newConversation.save()
+    const newConversation = await ConversationService.createConversation(concernedUsersIds)
 
     return res.status(200).json({ conversation: newConversation })
   } catch (error) {
@@ -56,14 +48,8 @@ async function addMessageToConversation (req: Request, res: Response): Promise<R
 
     const userId = req.body.user.id
 
-    const newMessage = await MessageController.createMessage(id, content, userId, messageReplyId)
-    const messageId = newMessage._id
-
-    const updatedConversation = await Conversation.findOneAndUpdate(
-      { _id: id },
-      { $push: { messages: messageId } },
-      { new: true }
-    )
+    const newMessage = await MessageService.createMessage(id, content, userId, messageReplyId)
+    const updatedConversation = await ConversationService.addMessage(id, newMessage._id)
 
     if (updatedConversation) {
       return res.status(200).json({ conversation: updatedConversation })
@@ -85,7 +71,7 @@ async function setConversationSeenForUserAndMessage (req: Request, res: Response
       return res.status(400).json({ error: 'Validation error' + error })
     }
 
-    const conversation = await Conversation.findById(id)
+    const conversation = await ConversationService.getConversationById(id)
     if (!conversation) {
       return res.status(404).json({ error: "The conversation couldn't be found!" })
     }
@@ -93,20 +79,17 @@ async function setConversationSeenForUserAndMessage (req: Request, res: Response
     const updateSeen = new Map(conversation.seen)
     updateSeen.set(user.id, messageId)
 
-    const { modifiedCount } = await Conversation.updateOne(
-      { _id: id },
-      { seen: updateSeen }
-    )
+    const updated = await ConversationService.updateSeen(updateSeen)
 
-    if (modifiedCount === 0) {
-      const existingConversation = await Conversation.findById(id)
+    if (updated === 0) {
+      const existingConversation = await ConversationService.getConversationById(id)
       if (existingConversation) {
         return res.status(200).send({ message: 'This seen already exist', conversation: existingConversation })
       } else {
         return res.status(400).json({ error: "The message couldn't be visualized" })
       }
     } else {
-      const updatedConversation = await Conversation.findById(id)
+      const updatedConversation = await ConversationService.getConversationById(id)
       return res.status(200).json({ conversation: updatedConversation })
     }
   } catch (error) {
@@ -134,7 +117,6 @@ async function deleteConversation (req: Request, res: Response): Promise<Respons
 }
 
 module.exports = {
-  getConversationWithParticipants,
   getAllConversationsForUser,
   createConversation,
   addMessageToConversation,
