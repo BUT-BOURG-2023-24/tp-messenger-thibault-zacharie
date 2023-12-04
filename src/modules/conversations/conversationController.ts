@@ -106,7 +106,6 @@ async function deleteConversation (req: Request, res: Response): Promise<Respons
     if (!id) {
       return res.status(400).send('Nothing to delete')
     }
-
     const deletedConversation = await Conversation.findByIdAndRemove(id)
 
     if (deletedConversation) {

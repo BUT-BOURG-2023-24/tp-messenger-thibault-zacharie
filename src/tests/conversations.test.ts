@@ -69,6 +69,8 @@ describe('CONVERSATIONS', () => {
 	// Add tests for other conversation-related endpoints
 
 	test("DELETE Conversation", async () => {
+		console.log(conversationId)
+
 		const deleteConversationResponse = await supertest(app)
 			.delete(`/conversations/${conversationId}`)
 			.set('Authorization', `${userToken}`);

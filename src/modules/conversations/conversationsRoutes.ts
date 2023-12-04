@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
-const conversationController = require('../modules/conversations/conversationController')
-const auth = require('../auth')
+const conversationController = require('./conversationController')
+const auth = require('../../auth')
 
 router.post('/', auth.checkAuth, conversationController.createConversation)
 router.get('/', auth.checkAuth, conversationController.getAllConversationsForUser)
