@@ -3,14 +3,22 @@ import supertest from "supertest";
 import { Express } from "express";
 import { setup, teardown } from "./setupTests";
 
-describe('CONVERSATIONS', () => 
-{
-	let app:Express, server:http.Server;
+describe('CONVERSATIONS', () => {
+	let app: Express, server: http.Server;
+	let userToken: string;
+	let conversationId: string;
 
 	beforeAll(async () => {
 		let res = await setup();
-		app = res.app; 
+		app = res.app;
 		server = res.server;
+
+		// Login an existing user to get the authentication token
+		const loginResponse = await supertest(app)
+			.post("/users/login")
+			.send({ username: "test", password: "testpwd" });
+
+		userToken = loginResponse.body.token;
 	});
 
 	afterAll(async () => {
@@ -18,46 +26,55 @@ describe('CONVERSATIONS', () =>
 	});
 
 	test("CREATE Conversation success", async () => {
-		// Pour set un header avec supertest, 
-		// vous pouvez utiliser la fonction .set('headerName', headerValue)
-		// Après avoir fait l'appel au get() (ou post(), ect...)
+		const createConversationResponse = await supertest(app)
+			.post("/conversations")
+			.set('Authorization', `${userToken}`)
+			.send({
+				concernedUsersIds: ["656df725d2092d396fa78ed6", "656df725d2092d396fa78ed9"],
+			});
+
+		console.log(createConversationResponse.body);
+
+		// Assert the response
+		expect(createConversationResponse.status).toBe(200);
+		expect(createConversationResponse.body.conversation).toBeDefined();
+
+		// Save the conversation ID for later use in other tests
+		conversationId = createConversationResponse.body.conversation._id;
 	});
 
 	test("CREATE Conversation wrong users", async () => {
+		const createConversationResponse = await supertest(app)
+			.post("/conversations")
+			.set('Authorization', `${userToken}`)
+			.send({
+				concernedUsersIds: ["656df225d2092d396fq78ed6", "invalidUser"]
+			});
 
+		// Assert the response for invalid users
+		expect(createConversationResponse.status).toBe(400);
+		// Add more assertions based on the expected response format or content
 	});
 
 	test("GET All conversation success", async () => {
-		//A la fin de ce test, vous pouvez récupérer l'ID de la conversation pour la suite des tests.
+		const getAllConversationsResponse = await supertest(app)
+			.get("/conversations")
+			.set('Authorization', `${userToken}`);
+
+		// Assert the response
+		expect(getAllConversationsResponse.status).toBe(200);
+		expect(getAllConversationsResponse.body.conversations).toBeDefined();
 	});
 
-	test("POST Message in conversation", async () => {
-
-		//A la fin de ce test, vous pouvez récupérer l'ID du message pour la suite des tests.
-	});
-
-	test("POST Reply message in conversation", async () => {
-
-	});
-
-	test("PUT Edit message in conversation", async () => {
-
-	});
-
-	test("POST React message in conversation", async () => {
-	
-	});
-
-
-	test("POST See conversation", async () => {
-
-	});
-
-	test("DELETE Message in conversation", async () => {
-
-	});
+	// Add tests for other conversation-related endpoints
 
 	test("DELETE Conversation", async () => {
+		const deleteConversationResponse = await supertest(app)
+			.delete(`/conversations/${conversationId}`)
+			.set('Authorization', `${userToken}`);
 
+		// Assert the response
+		expect(deleteConversationResponse.status).toBe(200);
+		expect(deleteConversationResponse.body.conversation).toBeDefined();
 	});
 });

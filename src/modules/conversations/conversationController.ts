@@ -4,6 +4,9 @@ import { JoiRequestValidatorInstance } from '../../JoiRequestValidator'
 const Conversation = require('./conversationModel')
 const MessageService = require('../messages/messageService')
 const ConversationService = require('../conversations/conversationService')
+const getConversationWithParticipants = async (firstParticipant: string, secondParticipant: string): Promise<any> => Conversation.findOne({
+  participants: { $all: [firstParticipant, secondParticipant] }
+})
 
 async function getAllConversationsForUser (req: Request, res: Response): Promise<Response> {
   try {
