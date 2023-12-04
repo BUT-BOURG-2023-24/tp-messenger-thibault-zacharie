@@ -1,7 +1,6 @@
 import { type Request, type Response } from 'express'
 import { JoiRequestValidatorInstance } from '../../JoiRequestValidator'
 
-const Conversation = require('./conversationModel')
 const MessageService = require('../messages/messageService')
 const ConversationService = require('../conversations/conversationService')
 
@@ -104,7 +103,7 @@ async function deleteConversation (req: Request, res: Response): Promise<Respons
       return res.status(400).send('Nothing to delete')
     }
 
-    const deletedConversation = await Conversation.findByIdAndRemove(id)
+    const deletedConversation = await ConversationService.deleteConversation(id)
 
     if (deletedConversation) {
       return res.status(200).json({ conversation: deletedConversation })
