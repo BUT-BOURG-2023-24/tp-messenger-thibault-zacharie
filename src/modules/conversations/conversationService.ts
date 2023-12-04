@@ -37,11 +37,14 @@ const updateSeen = async (id: string, updateSeen: Map<string, string>): Promise<
   return modifiedCount
 }
 
+const deleteConversation = async (id: string): Promise<any> => Conversation.findByIdAndRemove(id)
+
 module.exports = {
   getAllConversationsForUser,
   getConversationById,
   getConversationWithParticipants,
   createConversation,
   addMessage,
-  updateSeen
+  updateSeen,
+  deleteConversation
 }

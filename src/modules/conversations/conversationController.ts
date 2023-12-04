@@ -1,12 +1,8 @@
 import { type Request, type Response } from 'express'
 import { JoiRequestValidatorInstance } from '../../JoiRequestValidator'
 
-const Conversation = require('./conversationModel')
 const MessageService = require('../messages/messageService')
 const ConversationService = require('../conversations/conversationService')
-const getConversationWithParticipants = async (firstParticipant: string, secondParticipant: string): Promise<any> => Conversation.findOne({
-  participants: { $all: [firstParticipant, secondParticipant] }
-})
 
 async function getAllConversationsForUser (req: Request, res: Response): Promise<Response> {
   try {
@@ -32,9 +28,13 @@ async function createConversation (req: Request, res: Response): Promise<Respons
       return res.status(400).json({ error: validationResult.error })
     }
 
-    const newConversation = await ConversationService.createConversation(concernedUsersIds)
+    const conversation = ConversationService.getConversationWithParticipants(concernedUsersIds[0], concernedUsersIds[1])
+    if (!conversation) {
+      const newConversation = await ConversationService.createConversation(concernedUsersIds)
+      return res.status(200).json({ conversation: newConversation })
+    }
 
-    return res.status(200).json({ conversation: newConversation })
+    return res.status(200).json({ conversation })
   } catch (error) {
     return res.status(500).json({ error: 'Internal Server Error' })
   }
@@ -106,7 +106,7 @@ async function deleteConversation (req: Request, res: Response): Promise<Respons
     if (!id) {
       return res.status(400).send('Nothing to delete')
     }
-    const deletedConversation = await Conversation.findByIdAndRemove(id)
+    const deletedConversation = await ConversationService.deleteConversation(id)
 
     if (deletedConversation) {
       return res.status(200).json({ conversation: deletedConversation })
