@@ -46,9 +46,7 @@ describe('USERS', () => {
 				password: "user2pwd"
 			});
 
-		// Expecting a 500 status for an invalid password
 		expect(loginResponse.status).toBe(500);
-		// Add more assertions based on the expected response format or content
 	});
 
 	test("GET active users", async () => {
@@ -57,9 +55,7 @@ describe('USERS', () => {
 			.get("/users/online")
 			.set('Authorization', `${userToken}`);
 
-		// Expecting a 200 status for a valid token
 		expect(getActiveUsersResponse.status).toBe(200);
-		// Add more assertions based on the expected response format or content
 	});
 
 });

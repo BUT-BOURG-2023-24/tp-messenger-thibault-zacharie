@@ -12,25 +12,23 @@ export class SocketController {
     this.listenRoomChanged()
   }
 
-  connect () {
+  connect (): void {
     this.io.on('connection', async (socket: Socket) => {
       const optionalUser = socket.handshake.headers.userid
       const userId = optionalUser as string
       await this.connectionToSocketRoom(userId, socket)
 
-      // Emit @onConnected event to all users except the current one
-      this.io.emit('@onConnected', { userId })
+      this.io.emit('onConnected', { userId })
 
       socket.on('disconnect', async () => {
         await this.leaveAllRooms(socket.id)
 
-        // Emit @onDisconnected event to all users except the disconnected one
-        this.io.emit('@onDisconnected', { userId })
+        this.io.emit('onDisconnected', { userId })
       })
     })
   }
 
-  async connectionToSocketRoom (userId: string, socket: Socket) {
+  async connectionToSocketRoom (userId: string, socket: Socket): Promise<void> {
     if (userId) {
       this.userSocketMap.set(socket.id, userId)
     }
@@ -42,7 +40,7 @@ export class SocketController {
     }
   }
 
-  async leaveAllRooms (socketId: string) {
+  async leaveAllRooms (socketId: string): Promise<void> {
     const userId = this.userSocketMap.get(socketId)
 
     if (userId) {
@@ -57,25 +55,25 @@ export class SocketController {
   }
 
   addMessageEvent (conversationId: string, message: IMessage): void {
-    this.io.to(conversationId).emit('@newMessage', {
+    this.io.to(conversationId).emit('newMessage', {
       message
     })
   }
 
   editedMessageEvent (conversationId: string, message: IMessage): void {
-    this.io.to(conversationId).emit('@messageEdited', {
+    this.io.to(conversationId).emit('messageEdited', {
       message
     })
   }
 
   addConversationEvent (conversationId: string, conversation: IConversation): void {
-    this.io.to(conversationId).emit('@newConversation', {
+    this.io.to(conversationId).emit('newConversation', {
       conversation
     })
   }
 
   deleteConversationEvent (conversationId: string): void {
-    this.io.emit('@conversationDeleted', {
+    this.io.emit('conversationDeleted', {
       conversation: {
         _id: conversationId
       }
@@ -83,7 +81,7 @@ export class SocketController {
   }
 
   seenConversationEvent (conversationId: string): void {
-    this.io.to(conversationId).emit('@conversationSeen', {
+    this.io.to(conversationId).emit('conversationSeen', {
       conversation: {
         _id: conversationId
       }
@@ -91,20 +89,20 @@ export class SocketController {
   }
 
   addReactionEvent (conversationId: string, message: IMessage): void {
-    this.io.to(conversationId).emit('@reactionAdded', {
+    this.io.to(conversationId).emit('reactionAdded', {
       message
     })
   }
 
   deleteMessageEvent (conversationId: string, messageId: string): void {
-    this.io.to(conversationId).emit('@messageDeleted', {
+    this.io.to(conversationId).emit('messageDeleted', {
       message: {
         _id: messageId
       }
     })
   }
 
-  listenRoomChanged () {
+  listenRoomChanged (): void {
     this.io.of('/').adapter.on('create-room', (room) => {
       console.log(`room ${room} was created`)
     })
