@@ -3,7 +3,7 @@ const User = require('./userModel')
 const bcrypt = require('bcrypt')
 const pictures = require('../../pictures')
 
-async function createUser (username: string, password: string): Promise<{ user: IUser, isNew: boolean }> {
+const createUser = async (username: string, password: string): Promise<{ user: IUser, isNew: boolean }> => {
   const user = await User.findOne({ username })
 
   if (user) {
@@ -13,7 +13,7 @@ async function createUser (username: string, password: string): Promise<{ user: 
 
   const hash = await bcrypt.hash(password, 5)
   const newUser = new User({ username, password: hash, profilePic: pictures.pickRandom() })
-  newUser.save()
+  await newUser.save()
   return { user: newUser, isNew: true }
 }
 

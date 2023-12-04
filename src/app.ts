@@ -19,9 +19,9 @@ async function makeApp (database: Database): Promise<{ app: Express, server: htt
     origin: 'http://localhost:3000'
   }))
 
-  const userRoutes = require('./routes/users')
-  const messageRoutes = require('./routes/messages')
-  const conversationRoutes = require('./routes/conversations')
+  const userRoutes = require('./modules/users/userRoutes')
+  const messageRoutes = require('./modules/messages/messagesRoutes')
+  const conversationRoutes = require('./modules/conversations/conversationsRoutes')
   app.use('/users', userRoutes)
   app.use('/messages', messageRoutes)
   app.use('/conversations', conversationRoutes)

@@ -1,8 +1,9 @@
 import { type Request, type Response } from 'express'
 import { JoiRequestValidatorInstance } from '../../JoiRequestValidator'
 
-const Conversation = require('../Models/ConversationModel')
-const MessageController = require('./messageController')
+const Conversation = require('./conversationModel')
+const MessageController = require('../messages/messageController')
+const ConversationService = require('../conversations/conversationService')
 
 const getConversationWithParticipants = async (firstParticipant: string, secondParticipant: string): Promise<any> => Conversation.findOne({
   participants: { $all: [firstParticipant, secondParticipant] }
@@ -11,10 +12,8 @@ const getConversationWithParticipants = async (firstParticipant: string, secondP
 async function getAllConversationsForUser (req: Request, res: Response): Promise<Response> {
   try {
     const { id } = req.body.user
+    const allConversations = ConversationService.getAllConversationsForUser(id)
 
-    const allConversations = await Conversation.find({
-      participants: { $in: [id] }
-    })
     if (!allConversations) {
       return res.status(400).send('None conversation found')
     }
@@ -24,8 +23,6 @@ async function getAllConversationsForUser (req: Request, res: Response): Promise
     return res.status(500).send({ 'An error occurred while searching for conversations: ': error })
   }
 }
-
-const getConversationById = async (id: string): Promise<any> => Conversation.findById(id)
 
 async function createConversation (req: Request, res: Response): Promise<Response> {
   try {
@@ -139,7 +136,6 @@ async function deleteConversation (req: Request, res: Response): Promise<Respons
 module.exports = {
   getConversationWithParticipants,
   getAllConversationsForUser,
-  getConversationById,
   createConversation,
   addMessageToConversation,
   setConversationSeenForUserAndMessage,

@@ -1,11 +1,11 @@
-import joiValidator from '../middleware/joiValidator'
+import joiValidator from '../../middleware/joiValidator'
 
 const express = require('express')
 const router = express.Router()
-const auth = require('../auth')
-const userController = require('../modules/users/userController')
+const auth = require('../../auth')
+const userController = require('./userController')
 
-/* Register/login a user */
+/* Register & login a user */
 router.post(
   '/login',
   joiValidator,
@@ -16,7 +16,7 @@ router.post(
 router.get(
   '/online',
   auth.checkAuth,
-  userController.createUser
+  userController.getOnlineUsers
 )
 
 module.exports = router

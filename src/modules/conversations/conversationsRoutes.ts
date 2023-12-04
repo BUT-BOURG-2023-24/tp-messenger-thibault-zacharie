@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const conversationController = require('../database/Mongo/Controllers/conversationController')
-const auth = require('../auth')
+const conversationController = require('./conversationController')
+const auth = require('../../auth')
 
 router.post('/', auth.checkAuth, conversationController.createConversation)
 router.get('/', auth.checkAuth, conversationController.getAllConversationsForUser)

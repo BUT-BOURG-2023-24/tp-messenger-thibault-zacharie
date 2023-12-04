@@ -1,32 +1,19 @@
 import { type Request, type Response } from 'express'
 import { JoiRequestValidatorInstance } from '../../JoiRequestValidator'
 import Reactions from '../../reactions'
+const messageService = require('./messageService')
 
-const Message = require('../Models/MessageModel')
-
-async function createMessage (conversationId: string, content: string, userId: string, replyId: string | null): Promise<any> {
-  const newMessage = new Message({
-    conversationId,
-    from: userId,
-    content,
-    postedAt: new Date(),
-    replyTo: replyId
-  })
-  await newMessage.save()
-  return newMessage
-};
-
-const getMessageById = async (id: string): Promise<any> => Message.findById(id)
+const Message = require('./messageModel')
 
 async function deleteMessage (req: Request, res: Response): Promise<Response> {
   try {
     const { id } = req.params
-    const message = await Message.findOne({ _id: id })
+    const message = await messageService.getMessageById(id)
     if (!message) {
       return res.status(404).send('Message not found')
     }
 
-    const { deletedCount } = await Message.deleteOne({ _id: id })
+    const deletedCount = await messageService.deleteMessage(id)
     if (deletedCount === 0) {
       return res.status(400).send('Message cannot be deleted')
     }
@@ -90,8 +77,6 @@ async function reactToMessage (req: Request, res: Response): Promise<Response> {
 }
 
 module.exports = {
-  createMessage,
-  getMessageById,
   deleteMessage,
   editMessage,
   reactToMessage
